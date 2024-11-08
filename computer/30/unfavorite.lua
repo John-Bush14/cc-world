@@ -1,0 +1,3 @@
+local query = ...
+
+shell.run("favorite", query, 1, 1, "remove")
