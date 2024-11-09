@@ -1,6 +1,6 @@
 local query, x, y, remove = ...
 
-local item, modem, inventory, itemRemotePort = require("getItem")(query)
+local item, modem, _, itemRemotePort = require("getItem")(query)
 
 local iconFile = item .. ".nfp"
 if not fs.exists(iconFile) then
@@ -8,7 +8,7 @@ if not fs.exists(iconFile) then
     shell.run("paint", iconFile)
 end
 
-local iconHandler = fs.open(iconFile, "r")
+local iconHandler = fs.open(iconFile, "r") or error("no icon file magically!")
 local icon = iconHandler.readAll()
 iconHandler.close()
 

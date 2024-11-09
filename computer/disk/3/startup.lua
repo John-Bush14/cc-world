@@ -4,21 +4,21 @@ local toolfiles = {
     "ports",
     "gcna"
 }
-local tools = {}
+local utilityFiles = {}
 
 for _, toolfile in pairs(toolfiles) do
-    table.insert(tools, "../" .. string.gsub(string.gsub(fs.find("*/" .. toolfile .. ".lua")[1], "%.lua", ""), "%/", "."))
+    table.insert(utilityFiles, "../" .. string.gsub(string.gsub(fs.find("*/" .. toolfile .. ".lua")[1], "%.lua", ""), "%/", "."))
 end
 
 if os.getComputerLabel() ~= "hub" then
     print("find passion!")
-    shell.run(fs.find("*/" .. (os.getComputerLabel() or "inventory") .. ".lua")[1], table.unpack(tools))
+    shell.run(fs.find("*/" .. (os.getComputerLabel() or "inventory") .. ".lua")[1], table.unpack(utilityFiles))
     error("passion ended!")
 end
 
-local tools, fileTools, ports, gcna = table.unpack(tools)
+local toolsFile, fileToolsFile, portsFile, gcnaFile = table.unpack(utilityFiles)
 
-local fileTools, tools, ports, gcna = require(fileTools), require(tools), require(ports), require(gcna)
+local _, _, ports, gcna = require(fileToolsFile), require(toolsFile), require(portsFile), require(gcnaFile)
 
 gcna.init {
     LAN = {"top", ports.inventoryHubInit},
@@ -27,26 +27,30 @@ gcna.init {
 
 local inventoryHub
 
-function reboot()
-    local computers = {peripheral.find("computer", function(name, computer)
-        if computer.getLabel() == "hub" then return end
+local function reboot()
+    local _ = {peripheral.find("computer", function(_, computer)
+        if computer.getLabel() == "hub" then return false end
         if computer.getLabel() == "inventoryHub" then inventoryHub = computer end
-        
+
         --print(name)    
         computer.shutdown()
+
+        return false
     end)}
 
-    if inventoryHub ~= nil then 
+    if inventoryHub ~= nil then
         inventoryHub.turnOn()
         gcna.receive(0, {LAN = {ports.inventoryHubInit}})
         print("turned on")
     end
-    
-    local computers = {peripheral.find("computer", function(name, computer)
-        if computer.getLabel() == "hub" then return end
-        if computer.getLabel() == "manager" then return end
-            
+
+    local _ = {peripheral.find("computer", function(_, computer)
+        if computer.getLabel() == "hub" then return false end
+        if computer.getLabel() == "manager" then return false end
+
         computer.turnOn()
+
+        return false
     end)}
 end
 

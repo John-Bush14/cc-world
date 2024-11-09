@@ -1,6 +1,6 @@
 local modem = peripheral.wrap("top") or error("No internet connection")
 
-local screen = peripheral.wrap("monitor_23")
+local screen = peripheral.wrap("monitor_23") or error("no screen found")
 local screenSize = {x = 100, y = 67}
 local selfFile = fs.find("*/warehouseGPU.lua")[1]
 local tools, fileTools, ports = ...
@@ -44,30 +44,30 @@ modem.open(ports.warehouseGPU)
     barTxt.txt = "%s (%s%%) items out of %s stored"
     barTxt.color = colors.black
     barTxt.bgColor = colors.white
-    
+
     -- itemGrid
     itmGrid.grid = {x=4, y=3}
     itmGrid.paddingY = 4
     itmGrid.size = {x=15, y=12}
     itmGrid.spacing = 4
-        
+
     -- sideBars
     sideBar.width = 4
     sideBar.color = colors.black
     sideBar.padding = {x = 4, y = 3}
 
 -- Helper functions
-    function setCursorPosX(x)
+    local function setCursorPosX(x)
         local _, y = screen.getCursorPos()
         screen.setCursorPos(x, y)
     end
-    
-    function setCursorPosY(y)
+
+    local function setCursorPosY(y)
         local x, _ = screen.getCursorPos()
         screen.setCursorPos(x, y)
     end
 
-    function moveCursor(x, y)
+    local function moveCursor(x, y)
         if type(x) == "table" then
         y = x.y
         x = x.x
@@ -76,16 +76,16 @@ modem.open(ports.warehouseGPU)
         screen.setCursorPos(ox+x, oy+y)
     end
 
-    function printm(text)
+    local function printm(text)
         screen.write(text)
     end
-    
-    function printBig(text, size)
+
+    local function printBig(text, size)
         local x, y = screen.getCursorPos()
         bigfont.writeOn(screen, size or 1, text, x, y)
     end
-    
-    function drawPixel(color)
+
+    local function drawPixel(color)
         local oldBg = screen.getBackgroundColor()
         local oldTxt = screen.getTextColor()
         screen.setBackgroundColor(color or screen.getTextColor())
@@ -94,21 +94,21 @@ modem.open(ports.warehouseGPU)
         screen.setBackgroundColor(oldBg)
         screen.setTextColor(oldTxt)
     end
-    
-    function drawLineV(len, color)
+
+    local function drawLineV(len, color)
         for _= 1,len do
             drawPixel(color)
             moveCursor(-1, 1)
         end
     end
-    
-    function drawLineH(len, color)
+
+    local function drawLineH(len, color)
         for _=1,len do
             drawPixel(color)
         end
     end
-    
-    function drawPicture(picture)
+
+    local function drawPicture(picture)
         local lineLength = 0
         for c in picture:gmatch(".") do
             if c ~= " " and c ~= "\n" then
@@ -124,32 +124,32 @@ modem.open(ports.warehouseGPU)
     end
 
 while true do -- Main loop
-    _, _, _, _, inventory, _ = os.pullEvent("modem_message")
-    
+    local _, _, _, _, inventory, _ = os.pullEvent("modem_message")
+
     print("update!")
-    
+
     local favorites = inventory.favorites
-    
+
     screen.setTextScale(0.5)
     screen.setCursorBlink(false)
     screen.setBackgroundColor(bgColor)
     screen.setTextColor(txtColor)
     screen.setCursorPos(1, 1)
     screen.clear()
-    
+
      -- title 
     screen.setCursorPos(title.padding.x, title.padding.y)
     screen.setTextColor(title.color)
     printBig(title.txt)
-    
+
     -- bar
     bar.size = bar.barSize + (bar.borderSize*2)
     setCursorPosX(bar.padding.x)
     moveCursor(1, bar.padding.y)
-    
+
     drawLineV(bar.size, bar.borderColor)
     moveCursor(1, -bar.size)
-    
+
     for i=1,bar.length do
         local progress = i/bar.length
         drawLineV(bar.borderSize, bar.borderColor)
@@ -161,9 +161,9 @@ while true do -- Main loop
         drawLineV(bar.borderSize, bar.borderColor)
         moveCursor(1, -bar.size)
     end
-    
+
     drawLineV(bar.size, bar.borderColor)
-    
+
     -- barTxt
     barTxt.txtF = string.format(barTxt.txt, inventory.usedSize, math.floor((inventory.usedSize/inventory.size)*100+0.5), inventory.size)
     moveCursor((-bar.length-#barTxt.txtF)/2, -bar.size/2)
@@ -172,7 +172,7 @@ while true do -- Main loop
     printm(barTxt.txtF)
     -- move Y back for padding
     moveCursor(0, bar.size/2)
-    
+
     -- itmGrid
     itmGrid.leftLinePosX = (screenSize.x-(itmGrid.size.x*itmGrid.grid.x + itmGrid.spacing*(itmGrid.grid.x-1)))/2
     moveCursor(0, itmGrid.paddingY)
@@ -182,7 +182,7 @@ while true do -- Main loop
     for y=0,itmGrid.grid.y-1 do
         for x=0,itmGrid.grid.x-1 do
             local localBase = {itmGrid.basePos.x+(itmGrid.size.x+itmGrid.spacing)*x, itmGrid.basePos.y+(itmGrid.size.y+itmGrid.spacing)*y}
-    	    
+
     	    -- Box
     	    screen.setCursorPos(localBase[1], localBase[2])
             drawLineV(itmGrid.size.y)
@@ -191,7 +191,7 @@ while true do -- Main loop
             drawLineV(itmGrid.size.y)
             screen.setCursorPos(localBase[1], localBase[2])
             drawLineH(itmGrid.size.x)
-            
+
             -- Content
             screen.setCursorPos(localBase[1]+1, localBase[2]+1)
             local favorite = {}
@@ -202,24 +202,24 @@ while true do -- Main loop
                 favoriteName = inventory[favorite.name].displayName
                 favoriteCount = inventory[favorite.name].count
             end
-            
+
             moveCursor(1, 0)
             drawPicture(favorite.icon or favoritePlaceholder)
             if favorite.icon == "" then
                 moveCursor(0, 7)
             end
             moveCursor(0, 2)
-            
+
             screen.setBackgroundColor(bgColor)
             setCursorPosX(localBase[1]+itmGrid.size.x/2-#favoriteName/2)
-                
+
             printm(favoriteName)
             moveCursor(0, 1)
             setCursorPosX(localBase[1]+itmGrid.size.x/2-#(tostring(favoriteCount))/2)
             printm(tostring(favoriteCount))
         end
     end
-    
+
     -- sideBars
     screen.setCursorPos(sideBar.padding.x, sideBar.padding.y)
     sideBar.length = screenSize.y - (sideBar.padding.y*2)
@@ -227,7 +227,7 @@ while true do -- Main loop
         drawLineV(sideBar.length, sideBar.color)
         moveCursor(1, -sideBar.length)
     end
-    
+
     screen.setCursorPos(screenSize.x - sideBar.padding.x, sideBar.padding.y)
     sideBar.length = screenSize.y - (sideBar.padding.y*2)
     for _=1,sideBar.width do

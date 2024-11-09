@@ -1,6 +1,6 @@
 local query, amount = ...
 
-local item, modem, inventory, itemRemotePort = require("getItem")(query)
+local item, modem, _, itemRemotePort = require("getItem")(query)
 
 if item == nil then return end
 

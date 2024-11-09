@@ -1,18 +1,16 @@
-local modem = peripheral.wrap("back")
 local inputChests = {"minecraft:chest_120", "minecraft:chest_121"}
 
-local tools, fileTools, ports, gcna = ...
+local toolsFile, fileToolsFile, portsFile, gcnaFile = ...
 
-local fileTools, tools, ports, gcna = require(fileTools), require(tools), require(ports), require(gcna)
+local _, tools, ports, gcna = require(fileToolsFile), require(toolsFile), require(portsFile), require(gcnaFile)
 
 gcna.init {
     LAN = {"back", ports.inputManager}
 }
 
 while true do
-    
-    input = tools.getInventory(inputChests)
-    
+    local input = tools.getInventory(inputChests)
+
     for name, item in pairs(input) do
         gcna.transmit("LAN", ports.inputManager, {request="receive", sources=item.sources})
         gcna.receive(0, {LAN={ports.inputManager}})

@@ -9,7 +9,7 @@ while true do
     end
     if player then
         commands.fill(pos1 .. " " .. pos2 .. " air")
-    else        
+    else
     	commands.fill(pos1 .. " " .. pos2 .. " concrete 15")
     end
 end

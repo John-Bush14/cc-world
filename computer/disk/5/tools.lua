@@ -1,24 +1,26 @@
 local tools = {}
 
-function tools.getInventory(chests)
+function tools.getInventory(chests, inventoryPeripheral)
     local inventory = {}
     local size = 0
-    chests = chests or {peripheral.find(peripherals or "minecraft:chest")}
+    chests = chests or {peripheral.find(inventoryPeripheral or "minecraft:chest")}
     for _, chestName in pairs(chests) do
-        local chest = peripheral.wrap(chestName)
+        local chest = peripheral.wrap(chestName) or error("unreachable!")
         size = size + chest.size()*64
         for slot, item in pairs(chest.list()) do
             if item ~= nil then
-            
-                local name = item.nbtHash or item.name or print(textutils.serialize(item))
-             
-                if inventory[name] == nil then 
+
+               ---@diagnostic disable-next-line: undefined-field -- item.nbtHash gone in newer version
+               local name = item.nbtHash or item.name or print(textutils.serialize(item))
+
+                if inventory[name] == nil then
+                  ---@diagnostic disable-next-line: undefined-field -- getItemMeta renamed in newer version
                     inventory[name] = chest.getItemMeta(slot)
                     inventory[name].sources = {}
                 else
                     inventory[name].count = item.count + inventory[name].count
                 end
-                
+
                 table.insert(inventory[name].sources, {name=name,slot=slot,count=item.count,chestName = chestName,clusterName = selfName})
             end
         end
@@ -58,7 +60,7 @@ end
 
 function tools.tblSubstract(tbl1, tbl2)
     for k, i in pairs(tbl1) do
-        if tools.tblContains(tbl1, i) then
+        if tools.tblContains(tbl2, i) then
             tbl1[k] = nil
         end
     end
@@ -71,11 +73,11 @@ function tools.tblAdd(tbl1, tbl2)
 end
 
 function tools.getNetworkEvents()
-    local timer = os.startTimer(0)
+    local _ = os.startTimer(0)
     local events = { os.pullEventRaw() }
     local modemMessage = false
     local modemEvents = {}
-    
+
     for _, event in pairs(events) do
         if type(event) == "table" and modemMessage then
             event.event = "modemMessage"

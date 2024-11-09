@@ -1,4 +1,4 @@
-local speaker = peripheral.find("speaker")
+local speaker = peripheral.find("speaker") or error("no speaker?")
 
 local instruments = {
    "harp",
@@ -15,7 +15,7 @@ local instruments = {
    "bell",
    "flute",
    "xylophone",
-   "guitar", 
+   "guitar",
    "harp"
 }
 
@@ -32,13 +32,13 @@ local song = require("nbsParser")(io.open(songFile, "rb"))
 local paused = false
 local volume = 1
 
-speedMod = 1
+local speedMod = 1
 
 local tempo = song.header.tempo/100 * speedMod
 
 local spt = 1/tempo
 
-function getKeys()
+local function getKeys()
    os.startTimer(0)
    local events = {os.pullEvent()}
    local keys = {}
@@ -54,9 +54,9 @@ print("Starting song!")
 
 local k, note
 
-while true do 
+while true do
     local startTick = os.clock()
-     
+
     for _, key in pairs(getKeys()) do
         if key == pause then
             paused = not paused
@@ -70,7 +70,7 @@ while true do
             volume = math.max(volume - 1, 0)
         end
     end
-    
+
     k, note = next(song.notes, k)
     while type(note) == "table" and not paused do
         print(instruments[note.instrument + 1], note.velocity/(10/3), math.floor(math.min(math.max(((note.key-33)/87*24)+(note.pitch/100), 0), 24)))
@@ -83,7 +83,7 @@ while true do
         print("END!")
         return
     end
-    
+
     local endTick = os.clock()
         print(os.clock()-startTick, "2")
 

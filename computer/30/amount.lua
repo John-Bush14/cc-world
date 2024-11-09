@@ -1,5 +1,5 @@
 local query = ...
 
-local item, modem, inventory, itemRemotePort = require("getItem")(query)
+local item, _, inventory, _ = require("getItem")(query)
 
 print(inventory[item].count)

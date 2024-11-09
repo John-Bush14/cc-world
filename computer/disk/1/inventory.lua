@@ -1,11 +1,11 @@
 local modem = peripheral.wrap("bottom") or error("No internet connection")
 local id = modem.getNameLocal()
 local tickDelay = 0
-local tools, fileTools, ports, gcna = ...
+local toolsFile, fileToolsFile, portsFile, gcnaFile = ...
 
 modem.closeAll()
 
-local _, tools, ports, gcna = require(fileTools), require(tools), require(ports), require(gcna)
+local _, tools, ports, gcna = require(fileToolsFile), require(toolsFile), require(portsFile), require(gcnaFile)
 
 print("Turned on: Inventory!")
 
@@ -24,11 +24,11 @@ local chests = message.chests
 
 local inventory = {}
 local SerialInventory = ""
-local function getChanges() 
+local function getChanges()
     local changes = {}
     local newInventory, size = tools.getInventory(chests)
     local newSerialInventory = textutils.serialize(newInventory)
-    
+
     if SerialInventory ~= newSerialInventory then
         print("Change!")
         for name, items in pairs(tools.combine(inventory, newInventory)) do
@@ -45,7 +45,7 @@ local function getChanges()
         inventory = newInventory
         return changes, size
     end
-    
+
     return nil, size
 end
 
