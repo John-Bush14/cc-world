@@ -19,6 +19,8 @@ print(#chests)
 local toolsFile, fileToolsFile, portsFile, gcnaFile = ...
 local tools, fileTools, ports, gcna = require(toolsFile), require(fileToolsFile), require(portsFile), require(gcnaFile)
 
+local selfDisk = fs.getDir(fs.find("*/" .. (os.getComputerLabel() or "inventory") .. ".lua")[1])
+
 gcna.init {
     LAN = {"top", ports.item, ports.itemManager, ports.inventory, ports.inputManager},
     WWN = {"back", ports.itemRemote}
@@ -34,10 +36,10 @@ local function updateFavorites()
         end
     end
 
-    if not fs.exists("favorites") then
-        fileTools.write("favorites", "")
+    if not fs.exists(selfDisk.."/favorites") then
+        fileTools.write(selfDisk.."/favorites", "")
     else
-        local favoritesFile = fileTools.decodeFavorites(fileTools.read("favorites"))
+        local favoritesFile = fileTools.decodeFavorites(fileTools.read(selfDisk.."/favorites"))
 
         for _, data in pairs(favoritesFile) do
             if tonumber(data.y) > 0 and tonumber(data.y) < 4 and tonumber(data.x) > 0 and tonumber(data.x) < 5 then
@@ -150,10 +152,10 @@ while true do
 
             local codedFavoritePattern = string.gsub(codedFavorite, "|"..message.position.y.."|", "|.|")
             codedFavoritePattern = string.gsub(codedFavoritePattern,  "|"..message.position.x.."|", "|.|")
-            fileTools.remove("favorites", codedFavoritePattern)
+            fileTools.remove(selfDisk .. "/favorites", codedFavoritePattern)
 
             if message.operation == "add" then
-                fileTools.append("favorites", codedFavorite)
+                fileTools.append(selfDisk .. "/favorites", codedFavorite)
             end
 
             updateFavorites()
