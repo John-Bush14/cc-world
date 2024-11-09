@@ -1,5 +1,5 @@
 local modem = peripheral.find("modem") or error("no modem!")
-local itemRemotePort = 50
+local itemRemotePort = 10
 
 modem.open(itemRemotePort)
 
