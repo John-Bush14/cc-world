@@ -51,7 +51,7 @@ end
 
 function tools.tblContains(tbl, element)
     for _, e in pairs(tbl) do
-        if element == e then
+        if element.chestName == e.chestName then
             return true
         end
     end
@@ -59,8 +59,8 @@ function tools.tblContains(tbl, element)
 end
 
 function tools.tblSubstract(tbl1, tbl2)
-    for k, i in pairs(tbl1) do
-        if tools.tblContains(tbl2, i) then
+    for k, i in pairs(tbl2) do
+        if tools.tblContains(tbl1, i) then
             tbl1[k] = nil
         end
     end
