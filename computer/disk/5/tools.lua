@@ -72,22 +72,4 @@ function tools.tblAdd(tbl1, tbl2)
     end
 end
 
-function tools.getNetworkEvents()
-    local _ = os.startTimer(0)
-    local events = { os.pullEventRaw() }
-    local modemMessage = false
-    local modemEvents = {}
-
-    for _, event in pairs(events) do
-        if type(event) == "table" and modemMessage then
-            event.event = "modemMessage"
-            table.insert(modemEvents, event)
-        end
-        if event == "modem_message" then
-            modemMessage = true
-        end
-    end
-    return modemEvents
-end
-
 return tools
