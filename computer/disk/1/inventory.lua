@@ -3,8 +3,6 @@ local id = modem.getNameLocal()
 local tickDelay = 0
 local toolsFile, fileToolsFile, portsFile, gcnaFile = ...
 
-modem.closeAll()
-
 local _, tools, ports, gcna = require(fileToolsFile), require(toolsFile), require(portsFile), require(gcnaFile)
 
 print("Turned on: Inventory!")
