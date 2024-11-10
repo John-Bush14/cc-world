@@ -1,18 +1,17 @@
-local modem = peripheral.wrap("top") or error("No internet connection")
-
 local screen = peripheral.wrap("monitor_23") or error("no screen found")
 local screenSize = {x = 100, y = 67}
 local selfFile = fs.find("*/warehouseGPU.lua")[1]
-local tools, fileTools, ports = ...
+local tools, fileTools, ports, gcna = ...
 
-fileTools, tools, ports = require(fileTools), require(tools), require(ports)
+fileTools, tools, ports, gcna = require(fileTools), require(tools), require(ports), require(gcna)
 
 local favoritePlaceholder = fileTools.read(fs.getDir(selfFile) .. "/placeholder.nfp")
 
 local bigfont = require("bigfont")
 
-modem.closeAll()
-modem.open(ports.warehouseGPU)
+gcna.init({
+   LAN = {"top", ports.warehouseGPU}
+})
 
 -- constants
     -- tables
@@ -124,7 +123,7 @@ modem.open(ports.warehouseGPU)
     end
 
 while true do -- Main loop
-    local _, _, _, _, inventory, _ = os.pullEvent("modem_message")
+    local inventory = gcna.receive(0, {LAN = {ports.warehouseGPU}})
 
     print("update!")
 
