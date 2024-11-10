@@ -17,18 +17,19 @@ local instrumentsVanilla = {
    "pling"
 }
 
+function math.clamp(int, min, max) return math.min(math.max(int, min), max) end
 local pause = keys.space
 local nextK = keys.right
 local previous = keys.left
 local volumeUp = keys.up
 local volumeDown = keys.down
 
-local maxX = 20
-local paddingY = 15
-local paddingYV = 24
-local paddingX = 1
-local width = 3
-local widthV = 0.150
+MaxX = 0
+PaddingY = 0
+PaddingYV = 0 -- 24
+local paddingX = 0
+Width = 0 -- 3
+WidthV = 0 -- 0.150
 local color = colors.blue
 
 local function map(tbl, fn)
@@ -37,6 +38,48 @@ local function map(tbl, fn)
         result[i] = fn(v)
     end
     return result
+end
+
+local function calculateDimensions(song)
+   MaxX = term.getSize()/2+11
+
+   local layerI = 1
+
+   local AVpitch = 0
+   local AVvolume = 0
+
+   local volumeExtremes = {99999, -99999}
+   local pitchExtremes = {999999, -99999}
+
+   for _, note in pairs(song.notes) do
+      if type(note) == "table" then
+         layerI = layerI + (note["jumps-tick"] or 0)
+         local layer = {volume = 1.0}
+         if song.layers ~= nil then layer = song.layers[layerI] or error(layerI .. "|" .. #song.layers) end
+
+         local pitch  = math.clamp((note.key-33)+((note.pitch or 0)/100), 0, 24)
+         local volume = math.clamp(((note.velocity or 50)*(layer.volume/100))/(100/3), 0, 3)
+
+         AVpitch = (pitch  + (AVpitch or pitch))/2
+         AVvolume = (volume + (AVvolume or volume))/2
+      elseif AVpitch ~= 0 and AVpitch ~= 0 then
+         layerI = 1
+
+         volumeExtremes = {math.min(volumeExtremes[1], AVvolume), math.max(volumeExtremes[2], AVvolume)}
+         pitchExtremes = {math.min(pitchExtremes[1], AVpitch), math.max(pitchExtremes[2], AVpitch)}
+
+         AVpitch = 0
+         AVvolume = 0
+      end
+   end
+
+   local _, height = term.getSize()
+
+   Width = (height-5)/(pitchExtremes[2]-pitchExtremes[1])
+   PaddingY = height + pitchExtremes[1]*Width
+
+   WidthV = (height-5)/(volumeExtremes[2]-volumeExtremes[1])
+   PaddingYV = height + volumeExtremes[1]*WidthV
 end
 
 local function parseSong(songFile)
@@ -89,13 +132,14 @@ local paused = false
 
 local song, instruments = parseSong(songs[songI])
 
+calculateDimensions(song, instruments)
+
 function table.size(tbl)
     local x = 0
     for _,_ in pairs(tbl) do x = x + 1 end
     return x
 end
 
-function math.clamp(int, min, max) return math.min(math.max(int, min), max) end
 
 while true do
     local start = os.time()
@@ -111,7 +155,8 @@ while true do
                 ticks = 0
                 k, note = nil, nil
                 volumes = {}
-                pitches = {}
+                pitches = {} 
+                calculateDimensions(song, instruments)
             elseif key == previous then
                 songI = songI - 1
                 if songI < 1 then songI = #songs end
@@ -120,6 +165,7 @@ while true do
                 k, note = nil, nil
                 volumes = {}
                 pitches = {}
+               calculateDimensions(song, instruments)
             elseif key == volumeUp then
                 volumeMod = volumeMod*1.01
             elseif key == volumeDown then
@@ -170,29 +216,31 @@ while true do
         songI = songI + 1
         if songI > #songs then songI = 1 end
         parseSong(songs[songI])
+         calculateDimensions(song, instruments)
     end
 
     term.clear()
 
     if song.layers ~= nil then for _, layer in pairs(song.layers) do if layer.volume ~= 100 then print(layer.volume) end end end
 
-    term.setCursorPos(paddingX-1, paddingY)
+    term.setCursorPos(paddingX-1, PaddingY)
     term.setTextColor(color)
     term.setBackgroundColor(color)
-    for pitchk,pitch in pairs(pitches) do if pitchk >= #pitches-maxX then
+    for pitchk,pitch in pairs(pitches) do if pitchk >= #pitches-MaxX then
         local x,_ = term.getCursorPos()
 
-        term.setCursorPos(x+1, paddingY-(pitch/width))
-    end end
+        term.setCursorPos(x+1, PaddingY-(pitch*Width))
+        if pitch > 0 then term.write("0") end
+   end end
 
-   term.setCursorPos(paddingX-1, paddingYV)
+   term.setCursorPos(paddingX-1, PaddingYV)
     term.setTextColor(colors.green)
     term.setBackgroundColor(colors.green)
-    for volk,volume in pairs(volumes) do if volk >= #volumes-maxX then
+    for volk,volume in pairs(volumes) do if volk >= #volumes-MaxX then
         local x,_ = term.getCursorPos()
 
-        term.setCursorPos(x+1, paddingYV-(volume/widthV))
-        term.write("0")
+        term.setCursorPos(x+1, PaddingYV-(volume*WidthV))
+        if volume > 0 then term.write("0") end
     end end
         term.setTextColor(colors.white)
     term.setBackgroundColor(colors.black)
