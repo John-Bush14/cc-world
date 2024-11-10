@@ -1,13 +1,13 @@
 local screen = peripheral.wrap("monitor_23") or error("no screen found")
 local screenSize = {x = 100, y = 67}
 local selfFile = fs.find("*/warehouseGPU.lua")[1]
-local tools, fileTools, ports, gcna = ...
+local tools, fileTools, ports, gcna, graphicTools = ...
 
-fileTools, tools, ports, gcna = require(fileTools), require(tools), require(ports), require(gcna)
+fileTools, tools, ports, gcna, graphicTools = require(fileTools), require(tools), require(ports), require(gcna), require(graphicTools)
+
+graphicTools.extend_screen(screen)
 
 local favoritePlaceholder = fileTools.read(fs.getDir(selfFile) .. "/placeholder.nfp")
-
-local bigfont = require("bigfont")
 
 gcna.init({
    LAN = {"top", ports.warehouseGPU}
@@ -55,73 +55,6 @@ gcna.init({
     sideBar.color = colors.black
     sideBar.padding = {x = 4, y = 3}
 
--- Helper functions
-    local function setCursorPosX(x)
-        local _, y = screen.getCursorPos()
-        screen.setCursorPos(x, y)
-    end
-
-    local function setCursorPosY(y)
-        local x, _ = screen.getCursorPos()
-        screen.setCursorPos(x, y)
-    end
-
-    local function moveCursor(x, y)
-        if type(x) == "table" then
-        y = x.y
-        x = x.x
-        end
-        local ox, oy = screen.getCursorPos()
-        screen.setCursorPos(ox+x, oy+y)
-    end
-
-    local function printm(text)
-        screen.write(text)
-    end
-
-    local function printBig(text, size)
-        local x, y = screen.getCursorPos()
-        bigfont.writeOn(screen, size or 1, text, x, y)
-    end
-
-    local function drawPixel(color)
-        local oldBg = screen.getBackgroundColor()
-        local oldTxt = screen.getTextColor()
-        screen.setBackgroundColor(color or screen.getTextColor())
-        screen.setTextColor(color or screen.getTextColor())
-        printm("o")
-        screen.setBackgroundColor(oldBg)
-        screen.setTextColor(oldTxt)
-    end
-
-    local function drawLineV(len, color)
-        for _= 1,len do
-            drawPixel(color)
-            moveCursor(-1, 1)
-        end
-    end
-
-    local function drawLineH(len, color)
-        for _=1,len do
-            drawPixel(color)
-        end
-    end
-
-    local function drawPicture(picture)
-        local lineLength = 0
-        for c in picture:gmatch(".") do
-            if c ~= " " and c ~= "\n" then
-                drawPixel(2^tonumber(c, 16))
-            elseif c == "\n" then
-                moveCursor(-lineLength, 1)
-                lineLength = -1
-            else
-                moveCursor(1, 0)
-            end
-            lineLength = lineLength + 1
-        end
-    end
-
 while true do -- Main loop
     local inventory = gcna.receive(0, {LAN = {ports.warehouseGPU}})
 
@@ -139,43 +72,43 @@ while true do -- Main loop
      -- title 
     screen.setCursorPos(title.padding.x, title.padding.y)
     screen.setTextColor(title.color)
-    printBig(title.txt)
+    screen.printBig(title.txt)
 
     -- bar
     bar.size = bar.barSize + (bar.borderSize*2)
-    setCursorPosX(bar.padding.x)
-    moveCursor(1, bar.padding.y)
+    screen.setCursorPosX(bar.padding.x)
+    screen.moveCursor(1, bar.padding.y)
 
-    drawLineV(bar.size, bar.borderColor)
-    moveCursor(1, -bar.size)
+    screen.drawLineV(bar.size, bar.borderColor)
+    screen.moveCursor(1, -bar.size)
 
     for i=1,bar.length do
         local progress = i/bar.length
-        drawLineV(bar.borderSize, bar.borderColor)
+        screen.drawLineV(bar.borderSize, bar.borderColor)
         if progress <= inventory.usedSize/inventory.size then
-            drawLineV(bar.barSize, bar.barColorFull)
+            screen.drawLineV(bar.barSize, bar.barColorFull)
         else
-            drawLineV(bar.barSize, bar.barColor)
+            screen.drawLineV(bar.barSize, bar.barColor)
         end
-        drawLineV(bar.borderSize, bar.borderColor)
-        moveCursor(1, -bar.size)
+        screen.drawLineV(bar.borderSize, bar.borderColor)
+        screen.moveCursor(1, -bar.size)
     end
 
-    drawLineV(bar.size, bar.borderColor)
+    screen.drawLineV(bar.size, bar.borderColor)
 
     -- barTxt
     barTxt.txtF = string.format(barTxt.txt, inventory.usedSize, math.floor((inventory.usedSize/inventory.size)*100+0.5), inventory.size)
-    moveCursor((-bar.length-#barTxt.txtF)/2, -bar.size/2)
+    screen.moveCursor((-bar.length-#barTxt.txtF)/2, -bar.size/2)
     screen.setBackgroundColor(barTxt.bgColor)
     screen.setTextColor(barTxt.color)
-    printm(barTxt.txtF)
+    screen.printm(barTxt.txtF)
     -- move Y back for padding
-    moveCursor(0, bar.size/2)
+    screen.moveCursor(0, bar.size/2)
 
     -- itmGrid
     itmGrid.leftLinePosX = (screenSize.x-(itmGrid.size.x*itmGrid.grid.x + itmGrid.spacing*(itmGrid.grid.x-1)))/2
-    moveCursor(0, itmGrid.paddingY)
-    setCursorPosX(itmGrid.leftLinePosX)
+    screen.moveCursor(0, itmGrid.paddingY)
+    screen.setCursorPosX(itmGrid.leftLinePosX)
     itmGrid.basePos = {}
     itmGrid.basePos.x, itmGrid.basePos.y = screen.getCursorPos()
     for y=0,itmGrid.grid.y-1 do
@@ -184,12 +117,12 @@ while true do -- Main loop
 
     	    -- Box
     	    screen.setCursorPos(localBase[1], localBase[2])
-            drawLineV(itmGrid.size.y)
-            drawLineH(itmGrid.size.x)
-            moveCursor(-1, -itmGrid.size.y)
-            drawLineV(itmGrid.size.y)
+            screen.drawLineV(itmGrid.size.y)
+            screen.drawLineH(itmGrid.size.x)
+            screen.moveCursor(-1, -itmGrid.size.y)
+            screen.drawLineV(itmGrid.size.y)
             screen.setCursorPos(localBase[1], localBase[2])
-            drawLineH(itmGrid.size.x)
+            screen.drawLineH(itmGrid.size.x)
 
             -- Content
             screen.setCursorPos(localBase[1]+1, localBase[2]+1)
@@ -202,20 +135,20 @@ while true do -- Main loop
                 favoriteCount = inventory[favorite.name].count
             end
 
-            moveCursor(1, 0)
-            drawPicture(favorite.icon or favoritePlaceholder)
+            screen.moveCursor(1, 0)
+            screen.drawPicture(favorite.icon or favoritePlaceholder)
             if favorite.icon == "" then
-                moveCursor(0, 7)
+                screen.moveCursor(0, 7)
             end
-            moveCursor(0, 2)
+            screen.moveCursor(0, 2)
 
             screen.setBackgroundColor(bgColor)
-            setCursorPosX(localBase[1]+itmGrid.size.x/2-#favoriteName/2)
+            screen.setCursorPosX(localBase[1]+itmGrid.size.x/2-#favoriteName/2)
 
-            printm(favoriteName)
-            moveCursor(0, 1)
-            setCursorPosX(localBase[1]+itmGrid.size.x/2-#(tostring(favoriteCount))/2)
-            printm(tostring(favoriteCount))
+            screen.printm(favoriteName)
+            screen.moveCursor(0, 1)
+            screen.setCursorPosX(localBase[1]+itmGrid.size.x/2-#(tostring(favoriteCount))/2)
+            screen.printm(tostring(favoriteCount))
         end
     end
 
@@ -223,14 +156,14 @@ while true do -- Main loop
     screen.setCursorPos(sideBar.padding.x, sideBar.padding.y)
     sideBar.length = screenSize.y - (sideBar.padding.y*2)
     for _=1,sideBar.width do
-        drawLineV(sideBar.length, sideBar.color)
-        moveCursor(1, -sideBar.length)
+        screen.drawLineV(sideBar.length, sideBar.color)
+        screen.moveCursor(1, -sideBar.length)
     end
 
     screen.setCursorPos(screenSize.x - sideBar.padding.x, sideBar.padding.y)
     sideBar.length = screenSize.y - (sideBar.padding.y*2)
     for _=1,sideBar.width do
-        drawLineV(sideBar.length, sideBar.color)
-        moveCursor(-1, -sideBar.length)
+        screen.drawLineV(sideBar.length, sideBar.color)
+        screen.moveCursor(-1, -sideBar.length)
     end
 end

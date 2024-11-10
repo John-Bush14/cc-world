@@ -2,7 +2,8 @@ local toolfiles = {
     "tools",
     "fileTools",
     "ports",
-    "gcna"
+    "gcna",
+    "graphicTools"
 }
 
 
