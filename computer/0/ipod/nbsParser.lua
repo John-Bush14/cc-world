@@ -28,7 +28,7 @@ local versionFields = {
         
         notes = {
             {"jumps-tick", short},
-            {"jumpts-layer", short},
+            {"jumps-layer", short},
             {"instrument", byte},
             {"key", byte}
         },

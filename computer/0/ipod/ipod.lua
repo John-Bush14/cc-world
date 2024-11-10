@@ -43,7 +43,7 @@ end
 local function calculateDimensions(song)
    MaxX = term.getSize()/2+11
 
-   local layerI = 1
+   local layerI = 0
 
    local AVpitch = 0
    local AVvolume = 0
@@ -53,9 +53,9 @@ local function calculateDimensions(song)
 
    for _, note in pairs(song.notes) do
       if type(note) == "table" then
-         layerI = layerI + (note["jumps-tick"] or 0)
+         layerI = layerI + (note["jumps-layer"] or 0)
          local layer = {volume = 1.0}
-         if song.layers ~= nil then layer = song.layers[layerI] or error(layerI .. "|" .. #song.layers) end
+         if song.layers ~= nil then layer = song.layers[layerI] or layer end
 
          local pitch  = math.clamp((note.key-33)+((note.pitch or 0)/100), 0, 24)
          local volume = math.clamp(((note.velocity or 50)*(layer.volume/100))/(100/3), 0, 3)
@@ -182,13 +182,13 @@ while true do
     local AVvolume = nil
     local AVpitch = nil
 
-    local layerI = 1
+    local layerI = 0
 
     if type(note) == "table" then ticks = ticks-1 end
 
     while type(note) == "table" do
         --print(instruments[note.instrument + 1], note.velocity/(10/3), math.floor(math.min(math.max(((note.key-33)/87*24)+(note.pitch/100), 0), 24)))
-        layerI = layerI + (note["jumps-tick"] or 0)
+        layerI = layerI + (note["jumps-layer"] or 0)
         local layer = {volume = 1.0}
         if song.layers ~= nil then layer = song.layers[layerI] or error(textutils.serialize(song.layers) .. " fuck: " .. layerI) end
 
@@ -215,8 +215,12 @@ while true do
     if note == nil then
         songI = songI + 1
         if songI > #songs then songI = 1 end
-        parseSong(songs[songI])
-         calculateDimensions(song, instruments)
+                song, instruments = parseSong(songs[songI])
+                ticks = 0
+                k, note = nil, nil
+                volumes = {}
+                pitches = {} 
+                calculateDimensions(song, instruments)
     end
 
     term.clear()
