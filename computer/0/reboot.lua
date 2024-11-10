@@ -1,3 +1,3 @@
-peripheral.wrap("front").transmit(51, 0, {})
+peripheral.wrap("front").transmit(11, 0, {})
 
 os.reboot()
