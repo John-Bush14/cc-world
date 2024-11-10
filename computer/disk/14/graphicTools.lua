@@ -68,6 +68,18 @@ function M.extend_screen(screen)
             lineLength = lineLength + 1
         end
     end
+
+   function screen.drawRect(width, height)
+      local basex, basey = screen.getCursorPos()
+
+      screen.drawLineV(height)
+      screen.drawLineH(width)
+      screen.moveCursor(-1, -height)
+      screen.drawLineV(height)
+
+      screen.setCursorPos(basex, basey)
+      screen.drawLineH(width)
+   end
 end
 
 return M

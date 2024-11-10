@@ -116,13 +116,8 @@ while true do -- Main loop
             local localBase = {itmGrid.basePos.x+(itmGrid.size.x+itmGrid.spacing)*x, itmGrid.basePos.y+(itmGrid.size.y+itmGrid.spacing)*y}
 
     	    -- Box
-    	    screen.setCursorPos(localBase[1], localBase[2])
-            screen.drawLineV(itmGrid.size.y)
-            screen.drawLineH(itmGrid.size.x)
-            screen.moveCursor(-1, -itmGrid.size.y)
-            screen.drawLineV(itmGrid.size.y)
-            screen.setCursorPos(localBase[1], localBase[2])
-            screen.drawLineH(itmGrid.size.x)
+    	      screen.setCursorPos(localBase[1], localBase[2])
+            screen.drawRect(itmGrid.size.x, itmGrid.size.y)
 
             -- Content
             screen.setCursorPos(localBase[1]+1, localBase[2]+1)
