@@ -10,7 +10,7 @@ local instrumentsVanilla = {
    "chime",
    "xylophone",
    "iron_xylophone", -- unsupported in 1.12
-   "cow_bell",
+   "harp", -- cow_bell
    "didgeridoo",
    "harp", -- bit,
    "banjo",
