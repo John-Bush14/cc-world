@@ -52,6 +52,12 @@ local function reboot()
 
         return false
     end)}
+
+   local _ = {peripheral.find("turtle", function(_, turtle)
+      turtle.shutdown()
+
+      turtle.turnOn()
+   end)}
 end
 
 print("rebooting!")
