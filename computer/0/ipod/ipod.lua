@@ -9,12 +9,12 @@ local instrumentsVanilla = {
    "bell",
    "chime",
    "xylophone",
-   "iron_xylophone", -- unsupported in 1.12
+   "xylophone", -- iron_xylophone
    "harp", -- cow_bell
-   "didgeridoo",
+   "flute", -- didgeridoo
    "harp", -- bit,
-   "banjo",
-   "pling"
+   "harp", -- banjo
+   "harp" -- pling
 }
 
 function math.clamp(int, min, max) return math.min(math.max(int, min), max) end
@@ -41,6 +41,9 @@ local function map(tbl, fn)
 end
 
 local function calculateDimensions(song)
+   Spt = 1/((song.header.tempo or 200)/100)
+   SecSinceTick = 0
+
    MaxX = term.getSize()/2+11
 
    local layerI = 0
@@ -125,6 +128,10 @@ local note = nil
 
 local ticks = 0
 
+Spt = 0
+
+SecSinceTick = 0
+
 local volumes = {}
 local pitches = {}
 
@@ -140,11 +147,10 @@ function table.size(tbl)
     return x
 end
 
-
 while true do
-    local start = os.time()
+    local start = os.clock()
     os.startTimer(0)
-    while os.time() - start <= 0 do
+    while os.clock() - start <= 0 do
         for _, key in pairs(getKeys()) do
             if key == pause then
                 paused = not paused
@@ -174,7 +180,13 @@ while true do
         end
     end
 
-    if not paused then
+    SecSinceTick = SecSinceTick + (os.clock() - start)
+
+    print(SecSinceTick, Spt)
+
+    while not paused and SecSinceTick >= Spt do
+
+   SecSinceTick = SecSinceTick-Spt
 
     if type(note) ~= nil then ticks = ticks + 1 end
 
@@ -201,7 +213,7 @@ while true do
 
         local sides = {"left", "right", "bottom", "top"}
         local i = 1
-        while not peripheral.call(sides[i], "playNote", instrument, volume*10, pitch) do
+        while not peripheral.call(sides[i], "playNote", instrument, volume*10, pitch) and i < #sides do
            i = i + 1
         end
         k, note = next(song.notes, k)
@@ -253,5 +265,5 @@ while true do
     if song.header.name == "" then song.header.name = song.header["OG-filename"] end
     if song.header.author == "" then song.header.author = song.header["OG-author"] end
 
-    print(" - " .. song.header.name .. " - from " .. song.header.author .. " playing for " .. math.floor(ticks or 0) .. "/" .. math.floor(song.header.length) .. " ticks")
+    print(" - " .. song.header.name .. " - from " .. song.header.author .. " playing for " .. math.floor(ticks or 0) .. "/" .. math.floor(song.header.length) .. " ticks", Spt)
 end end
