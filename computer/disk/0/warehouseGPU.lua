@@ -15,46 +15,44 @@ gcna.init({
 })
 
 -- constants
-    -- tables
-    local title = {}
-    local bar = {}
-    local barTxt = {}
-    local itmGrid = {}
-    local sideBar = {}
-
     -- visual constants
     local bgColor = colors.yellow
     local txtColor = colors.black
 
-    -- title
-    title.txt = "Warehouse Inventory"
-    title.padding = { x = screenSize.x/2-(#title.txt*1.5-1), y = 5 }
-    title.color = colors.black
+    local title = {
+      txt = "Warehouse Inventory",
+      padding = { x = screenSize.x/2-(#"Warehouse Inventory"*1.5-1), y = 5 }, -- title.txt
+      color = colors.black
+    }
 
-    -- bar
-    bar.barSize = 3
-    bar.borderSize = 1
-    bar.borderColor = colors.black
-    bar.barColor = colors.white
-    bar.barColorFull = colors.red
-    bar.padding = {x = 9, y = 4}
-    bar.length = screenSize.x - ((bar.padding.x*2)+3)
+    local bar = {
+      barSize = 3,
+      borderSize = 1,
+      borderColor = colors.black,
+      barColor = colors.white,
+      barColorFull = colors.red,
+      padding = {x = 9, y = 4},
+      length = screenSize.x - ((9*2)+3), -- 9 = bar.padding.x
+   }
 
-    --barTxt
-    barTxt.txt = "%s (%s%%) items out of %s stored"
-    barTxt.color = colors.black
-    barTxt.bgColor = colors.white
+   local barTxt = {
+      txt = "%s (%s%%) items out of %s stored",
+      color = colors.black,
+      bgColor = colors.white,
+   }
 
-    -- itemGrid
-    itmGrid.grid = {x=4, y=3}
-    itmGrid.paddingY = 4
-    itmGrid.size = {x=15, y=12}
-    itmGrid.spacing = 4
+   local itmGrid = {
+      grid = {x=4, y=3},
+      paddingY = 4,
+      size = {x=15, y=12},
+      spacing = 4,
+   }
 
-    -- sideBars
-    sideBar.width = 4
-    sideBar.color = colors.black
-    sideBar.padding = {x = 4, y = 3}
+   local sideBar = {
+      width = 4,
+      color = colors.black,
+      padding = {x = 4, y = 3},
+   }
 
 while true do -- Main loop
     local inventory = gcna.receive(0, {LAN = {ports.warehouseGPU}})
