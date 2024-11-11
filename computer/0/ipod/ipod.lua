@@ -183,7 +183,10 @@ while true do
         end
     end
 
+
     SecSinceTick = SecSinceTick + (os.clock() - start)
+    
+    if ticks == 0 then SecSinceTick = 0.05 end
 
     while not paused and SecSinceTick >= Spt-0.1  do
 
