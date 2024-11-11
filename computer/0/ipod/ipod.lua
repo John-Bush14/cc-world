@@ -188,9 +188,11 @@ while true do
     
     if ticks == 0 then SecSinceTick = 0.05 end
 
-    while not paused and SecSinceTick >= Spt-0.1  do
+    while SecSinceTick >= Spt-0.1  do
 
    SecSinceTick = SecSinceTick-Spt
+
+   if not paused then
 
     if type(note) ~= nil then ticks = ticks + 1 end
 
@@ -270,4 +272,4 @@ while true do
     if song.header.author == "" then song.header.author = song.header["OG-author"] end
 
     print(" - " .. song.header.name .. " - from " .. song.header.author .. " playing for " .. math.floor(ticks or 0) .. "/" .. math.floor(song.header.length) .. " ticks", Spt, song.header.tempo/100)
-end end
+end end end
