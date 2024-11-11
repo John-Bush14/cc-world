@@ -1,3 +1,4 @@
+---@diagnostic disable: undefined-field
 local screen = peripheral.wrap("monitor_23") or error("no screen found")
 local screenSize = {x = 100, y = 67}
 local selfFile = fs.find("*/warehouseGPU.lua")[1]
@@ -150,15 +151,9 @@ while true do -- Main loop
     -- sideBars
     screen.setCursorPos(sideBar.padding.x, sideBar.padding.y)
     sideBar.length = screenSize.y - (sideBar.padding.y*2)
-    for _=1,sideBar.width do
-        screen.drawLineV(sideBar.length, sideBar.color)
-        screen.moveCursor(1, -sideBar.length)
-    end
+   screen.drawLineV(sideBar.length, sideBar.color, sideBar.width)
 
-    screen.setCursorPos(screenSize.x - sideBar.padding.x, sideBar.padding.y)
+    screen.setCursorPos(screenSize.x - sideBar.padding.x - sideBar.width, sideBar.padding.y)
     sideBar.length = screenSize.y - (sideBar.padding.y*2)
-    for _=1,sideBar.width do
-        screen.drawLineV(sideBar.length, sideBar.color)
-        screen.moveCursor(-1, -sideBar.length)
-    end
+   screen.drawLineV(sideBar.length, sideBar.color, sideBar.width)
 end

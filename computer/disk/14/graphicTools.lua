@@ -41,7 +41,16 @@ function M.extend_screen(screen)
         screen.setTextColor(oldTxt)
     end
 
-    function screen.drawLineV(len, color)
+   function screen.drawLineV(len, color, width)
+      if width ~= nil then
+         for _=1,width do
+            screen.drawLineV(len, color)
+            screen.moveCursor(1, -len)
+         end
+
+         return
+      end
+
         for _= 1,len do
             screen.drawPixel(color)
             screen.moveCursor(-1, 1)
