@@ -185,9 +185,7 @@ while true do
 
     SecSinceTick = SecSinceTick + (os.clock() - start)
 
-    print(SecSinceTick, Spt)
-
-    while not paused and SecSinceTick >= Spt do
+    while not paused and SecSinceTick >= Spt-0.1  do
 
    SecSinceTick = SecSinceTick-Spt
 
