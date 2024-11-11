@@ -41,7 +41,10 @@ local function map(tbl, fn)
 end
 
 local function calculateDimensions(song)
-   Spt = 1/((song.header.tempo or 200)/100)
+   Spt = 1/((song.header.tempo or 2000)/100)
+   
+   if Spt > 0.05 then Spt = 0.05 end
+
    SecSinceTick = 0
 
    MaxX = term.getSize()/2+11
@@ -265,5 +268,5 @@ while true do
     if song.header.name == "" then song.header.name = song.header["OG-filename"] end
     if song.header.author == "" then song.header.author = song.header["OG-author"] end
 
-    print(" - " .. song.header.name .. " - from " .. song.header.author .. " playing for " .. math.floor(ticks or 0) .. "/" .. math.floor(song.header.length) .. " ticks", Spt)
+    print(" - " .. song.header.name .. " - from " .. song.header.author .. " playing for " .. math.floor(ticks or 0) .. "/" .. math.floor(song.header.length) .. " ticks", Spt, song.header.tempo/100)
 end end
