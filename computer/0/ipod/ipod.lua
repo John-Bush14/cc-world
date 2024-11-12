@@ -47,7 +47,7 @@ local function calculateDimensions(song)
 
    SecSinceTick = 0
 
-   MaxX = term.getSize()/2+11
+   MaxX = math.floor(term.getSize()/2+11)
 
    local layerI = 0
 
@@ -248,22 +248,26 @@ while true do
     term.setCursorPos(paddingX-1, PaddingY)
     term.setTextColor(color)
     term.setBackgroundColor(color)
-    for pitchk,pitch in pairs(pitches) do if pitchk >= #pitches-MaxX then
+    for pitchk = math.max(#pitches-MaxX, 1),#pitches,1 do
+         local pitch = pitches[pitchk]
+
         local x,_ = term.getCursorPos()
 
         term.setCursorPos(x+1, PaddingY-(pitch*Width))
         if pitch > 0 then term.write("0") end
-   end end
+   end
 
    term.setCursorPos(paddingX-1, PaddingYV)
     term.setTextColor(colors.green)
     term.setBackgroundColor(colors.green)
-    for volk,volume in pairs(volumes) do if volk >= #volumes-MaxX then
+    for volk = math.max(#volumes-MaxX, 1), #volumes, 1 do
+         local volume = volumes[volk]
+
         local x,_ = term.getCursorPos()
 
         term.setCursorPos(x+1, PaddingYV-(volume*WidthV))
         if volume > 0 then term.write("0") end
-    end end
+    end
         term.setTextColor(colors.white)
     term.setBackgroundColor(colors.black)
     term.setCursorPos(1, 1)
