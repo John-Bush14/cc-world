@@ -215,78 +215,85 @@ local function playSong(songFile)
    local pitches = {}
 
 
-while true do
-    local start = os.clock()
-    os.startTimer(0)
+   while true do
+      local start = os.clock()
 
-   local elapsedTime = 0
-
-    while elapsedTime <= 0 do
-      local changeSong = false
-
-       paused, changeSong = handleInput(paused)
-
-      if changeSong then return playSong(songs[songI]) end
-
-        elapsedTime = os.clock() - start
-    end
+      local elapsedTime = 0
 
 
-    secSinceTick = secSinceTick + elapsedTime
+      os.startTimer(0)
+      while elapsedTime <= 0 do
+         local changeSong = false
 
-    if ticks == 0 then secSinceTick = 0.05 end
+         paused, changeSong = handleInput(paused)
 
-    while secSinceTick >= spt-0.1  do
+         if changeSong then return playSong(songs[songI]) end
 
-   secSinceTick = secSinceTick-spt
 
-   if not paused then
+         elapsedTime = os.clock() - start
+      end
 
-    if type(note) ~= nil then ticks = ticks + 1 end
 
-    k, note = next(song.notes, k)
-    local AVvolume = nil
-    local AVpitch = nil
+      if ticks == 0 then secSinceTick = 0.05 end -- safegaurd
 
-    local layerI = 0
 
-    if type(note) == "table" then ticks = ticks-1 end
+      secSinceTick = secSinceTick + elapsedTime
 
-    while type(note) == "table" do
-        --print(instruments[note.instrument + 1], note.velocity/(10/3), math.floor(math.min(math.max(((note.key-33)/87*24)+(note.pitch/100), 0), 24)))
-        layerI = layerI + (note["jumps-layer"] or 0)
-        local layer = {volume = 1.0}
-        if song.layers ~= nil then layer = song.layers[layerI] or error(textutils.serialize(song.layers) .. " fuck: " .. layerI) end
 
-        local pitch  = math.clamp((note.key-33)+((note.pitch or 0)/100), 0, 24)
-        local volume = math.clamp(((note.velocity or 50)*(layer.volume/100)*volumeMod)/(100/3), 0, 3)
-        local instrument = instruments[note.instrument + 1] or error("Custom Instrument Not Supported!")
+      while secSinceTick >= spt-0.1  do
 
-        AVpitch = (pitch  + (AVpitch or pitch))/2
-        AVvolume = (volume + (AVvolume or volume))/2
+         secSinceTick = secSinceTick-spt
 
-        local i = 1
+         if not paused then
+
+         if type(note) ~= nil then ticks = ticks + 1 end
+
+         k, note = next(song.notes, k)
+         local AVvolume = nil
+         local AVpitch = nil
+
+         local layerI = 0
+
+         if type(note) == "table" then ticks = ticks-1 end
+
+         while type(note) == "table" do
+            --print(instruments[note.instrument + 1], note.velocity/(10/3), math.floor(math.min(math.max(((note.key-33)/87*24)+(note.pitch/100), 0), 24)))
+            layerI = layerI + (note["jumps-layer"] or 0)
+            local layer = {volume = 1.0}
+            if song.layers ~= nil then layer = song.layers[layerI] or error(textutils.serialize(song.layers) .. " fuck: " .. layerI) end
+
+            local pitch  = math.clamp((note.key-33)+((note.pitch or 0)/100), 0, 24)
+            local volume = math.clamp(((note.velocity or 50)*(layer.volume/100)*volumeMod)/(100/3), 0, 3)
+            local instrument = instruments[note.instrument + 1] or error("Custom Instrument Not Supported!")
+
+            AVpitch = (pitch  + (AVpitch or pitch))/2
+            AVvolume = (volume + (AVvolume or volume))/2
+
+            local i = 1
 
 ---@diagnostic disable-next-line: need-check-nil
-        while not speakers[i].playNote(instrument, volume*10, pitch) and i < #speakers do
-           i = i + 1
-        end
+            while not speakers[i].playNote(instrument, volume*10, pitch) and i < #speakers do
+               i = i + 1
+            end
 
-        k, note = next(song.notes, k)
-    end
+            k, note = next(song.notes, k)
+         end
 
-    --if layerI ~= 0 then k, note = next(song.notes, k) end
+         --if layerI ~= 0 then k, note = next(song.notes, k) end
 
-    table.insert(volumes, AVvolume or 0)
-    table.insert(pitches, AVpitch or 0)
+         table.insert(volumes, AVvolume or 0)
+         table.insert(pitches, AVpitch or 0)
 
-    if note == nil then
-      songI = songI + 1
-      if songI > #songs then songI = 1 end
-      return playSong(songs[songI])
-    end
+         if note == nil then
+            songI = songI + 1
+            if songI > #songs then songI = 1 end
+            return playSong(songs[songI])
+         end
 
-    drawScreen(volumes, pitches, song, ticks)
-end end end end
+         drawScreen(volumes, pitches, song, ticks)
+         end
+      end
+   end
+end
 
 playSong(songs[1])
