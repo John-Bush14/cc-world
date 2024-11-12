@@ -188,6 +188,37 @@ local function handleInput(paused)
    return paused, songIChanged
 end
 
+local function playTick(k, note, song, instruments)
+   local AVpitch = nil
+   local AVvolume = nil
+
+   local layerI = 0
+
+   while type(note) == "table" do
+      layerI = layerI + (note["jumps-layer"] or 0)
+      local layer = {volume = 1.0}
+      if song.layers ~= nil then layer = song.layers[layerI] or error(textutils.serialize(song.layers) .. " fuck: " .. layerI) end
+
+      local pitch  = math.clamp((note.key-33)+((note.pitch or 0)/100), 0, 24)
+      local volume = math.clamp(((note.velocity or 50)*(layer.volume/100)*volumeMod)/(100/3), 0, 3)
+      local instrument = instruments[note.instrument + 1] or error("Custom Instrument Not Supported!")
+
+      AVpitch = (pitch  + (AVpitch or pitch))/2
+      AVvolume = (volume + (AVvolume or volume))/2
+
+      local i = 1
+
+---@diagnostic disable-next-line: need-check-nil
+      while not speakers[i].playNote(instrument, volume*10, pitch) and i < #speakers do
+         i = i + 1
+      end
+
+      k, note = next(song.notes, k)
+   end
+
+   return AVpitch, AVvolume, k, note
+end
+
 local function playSong(songFile)
    local song, instruments = parseSong(songs[songI])
 
@@ -249,35 +280,18 @@ local function playSong(songFile)
          if type(note) ~= nil then ticks = ticks + 1 end
 
          k, note = next(song.notes, k)
+
+
          local AVvolume = nil
          local AVpitch = nil
 
-         local layerI = 0
 
-         if type(note) == "table" then ticks = ticks-1 end
+         if type(note) == "table" then
+            ticks = ticks-1
 
-         while type(note) == "table" do
-            --print(instruments[note.instrument + 1], note.velocity/(10/3), math.floor(math.min(math.max(((note.key-33)/87*24)+(note.pitch/100), 0), 24)))
-            layerI = layerI + (note["jumps-layer"] or 0)
-            local layer = {volume = 1.0}
-            if song.layers ~= nil then layer = song.layers[layerI] or error(textutils.serialize(song.layers) .. " fuck: " .. layerI) end
-
-            local pitch  = math.clamp((note.key-33)+((note.pitch or 0)/100), 0, 24)
-            local volume = math.clamp(((note.velocity or 50)*(layer.volume/100)*volumeMod)/(100/3), 0, 3)
-            local instrument = instruments[note.instrument + 1] or error("Custom Instrument Not Supported!")
-
-            AVpitch = (pitch  + (AVpitch or pitch))/2
-            AVvolume = (volume + (AVvolume or volume))/2
-
-            local i = 1
-
----@diagnostic disable-next-line: need-check-nil
-            while not speakers[i].playNote(instrument, volume*10, pitch) and i < #speakers do
-               i = i + 1
-            end
-
-            k, note = next(song.notes, k)
+            AVpitch, AVvolume, k, note = playTick(k, note, song, instruments)
          end
+
 
          --if layerI ~= 0 then k, note = next(song.notes, k) end
 
@@ -291,6 +305,7 @@ local function playSong(songFile)
          end
 
          drawScreen(volumes, pitches, song, ticks)
+         print(k, note)
          end
       end
    end
