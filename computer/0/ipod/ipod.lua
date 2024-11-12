@@ -42,6 +42,42 @@ local function map(tbl, fn)
     return result
 end
 
+local function drawScreen(volumes, pitches, song, ticks)
+    term.clear()
+
+    term.setCursorPos(paddingX-1, PaddingY)
+    term.setTextColor(color)
+    term.setBackgroundColor(color)
+    for pitchk = math.max(#pitches-MaxX, 1),#pitches,1 do
+         local pitch = pitches[pitchk]
+
+        local x,_ = term.getCursorPos()
+
+        term.setCursorPos(x+1, PaddingY-(pitch*Width))
+        if pitch > 0 then term.write("0") end
+   end
+
+   term.setCursorPos(paddingX-1, PaddingYV)
+    term.setTextColor(colors.green)
+    term.setBackgroundColor(colors.green)
+    for volk = math.max(#volumes-MaxX, 1), #volumes, 1 do
+         local volume = volumes[volk]
+
+        local x,_ = term.getCursorPos()
+
+        term.setCursorPos(x+1, PaddingYV-(volume*WidthV))
+        if volume > 0 then term.write("0") end
+    end
+        term.setTextColor(colors.white)
+    term.setBackgroundColor(colors.black)
+    term.setCursorPos(1, 1)
+
+    if song.header.name == "" then song.header.name = song.header["OG-filename"] end
+    if song.header.author == "" then song.header.author = song.header["OG-author"] end
+
+    print(" - " .. song.header.name .. " - from " .. song.header.author .. " playing for " .. math.floor(ticks or 0) .. "/" .. math.floor(song.header.length) .. " ticks")
+ end
+
 local function calculateDimensions(song)
    Spt = 1/((song.header.tempo or 2000)/100)
    
@@ -245,43 +281,10 @@ while true do
                 ticks = 0
                 k, note = nil, nil
                 volumes = {}
-                pitches = {} 
+                pitches = {}
                 calculateDimensions(song, instruments)
     end
 
-    term.clear()
-
-    if song.layers ~= nil then for _, layer in pairs(song.layers) do if layer.volume ~= 100 then print(layer.volume) end end end
-
-    term.setCursorPos(paddingX-1, PaddingY)
-    term.setTextColor(color)
-    term.setBackgroundColor(color)
-    for pitchk = math.max(#pitches-MaxX, 1),#pitches,1 do
-         local pitch = pitches[pitchk]
-
-        local x,_ = term.getCursorPos()
-
-        term.setCursorPos(x+1, PaddingY-(pitch*Width))
-        if pitch > 0 then term.write("0") end
-   end
-
-   term.setCursorPos(paddingX-1, PaddingYV)
-    term.setTextColor(colors.green)
-    term.setBackgroundColor(colors.green)
-    for volk = math.max(#volumes-MaxX, 1), #volumes, 1 do
-         local volume = volumes[volk]
-
-        local x,_ = term.getCursorPos()
-
-        term.setCursorPos(x+1, PaddingYV-(volume*WidthV))
-        if volume > 0 then term.write("0") end
-    end
-        term.setTextColor(colors.white)
-    term.setBackgroundColor(colors.black)
-    term.setCursorPos(1, 1)
-
-    if song.header.name == "" then song.header.name = song.header["OG-filename"] end
-    if song.header.author == "" then song.header.author = song.header["OG-author"] end
-
-    print(" - " .. song.header.name .. " - from " .. song.header.author .. " playing for " .. math.floor(ticks or 0) .. "/" .. math.floor(song.header.length) .. " ticks", Spt, song.header.tempo/100)
+    drawScreen(volumes, pitches, song, ticks)
 end end end
+
