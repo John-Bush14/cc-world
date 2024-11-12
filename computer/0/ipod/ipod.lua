@@ -17,6 +17,8 @@ local instrumentsVanilla = {
    "harp" -- pling
 }
 
+local speakers = {peripheral.find("speaker")}
+
 function math.clamp(int, min, max) return math.min(math.max(int, min), max) end
 local pause = keys.space
 local nextK = keys.right
@@ -221,11 +223,13 @@ while true do
         AVpitch = (pitch  + (AVpitch or pitch))/2
         AVvolume = (volume + (AVvolume or volume))/2
 
-        local sides = {"left", "right", "bottom", "top"}
         local i = 1
-        while not peripheral.call(sides[i], "playNote", instrument, volume*10, pitch) and i < #sides do
+
+---@diagnostic disable-next-line: need-check-nil
+        while not speakers[i].playNote(instrument, volume*10, pitch) and i < #speakers do
            i = i + 1
         end
+
         k, note = next(song.notes, k)
     end
 
