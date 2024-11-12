@@ -79,12 +79,6 @@ local function drawScreen(volumes, pitches, song, ticks)
  end
 
 local function calculateDimensions(song)
-   Spt = 1/((song.header.tempo or 2000)/100)
-   
-   if Spt > 0.05 then Spt = 0.05 end
-
-   SecSinceTick = 0
-
    MaxX = math.floor(term.getSize()/2+11)
 
    local layerI = 0
@@ -164,29 +158,38 @@ local volumeMod = 1
 
 local songs = map(fs.list(songsFolder), function(file) return fs.combine(songsFolder, file) end)
 
-local k = nil
-local note = nil
-
-local ticks = 0
-
-Spt = 0
-
-SecSinceTick = 0
-
-local volumes = {}
-local pitches = {}
-
-local paused = false
-
-local song, instruments = parseSong(songs[songI])
-
-calculateDimensions(song, instruments)
-
 function table.size(tbl)
     local x = 0
     for _,_ in pairs(tbl) do x = x + 1 end
     return x
 end
+
+local function playSong(songFile)
+   local song, instruments = parseSong(songs[songI])
+
+
+   local ticks = 0
+
+   local paused = false
+
+
+   calculateDimensions(song)
+
+
+   local spt = 1/((song.header.tempo or 2000)/100)
+
+   if spt > 0.05 then spt = 0.05 end
+
+   local secSinceTick = 0
+
+
+   local k, note = nil, nil
+
+
+   local volumes = {}
+
+   local pitches = {}
+
 
 while true do
     local start = os.clock()
@@ -201,21 +204,11 @@ while true do
             elseif key == nextK then
                 songI = songI + 1
                 if songI > #songs then songI = 1 end
-                song, instruments = parseSong(songs[songI])
-                ticks = 0
-                k, note = nil, nil
-                volumes = {}
-                pitches = {} 
-                calculateDimensions(song, instruments)
+                return playSong(songs[songI])
             elseif key == previous then
                 songI = songI - 1
                 if songI < 1 then songI = #songs end
-                song, instruments = parseSong(songs[songI])
-                ticks = 0
-                k, note = nil, nil
-                volumes = {}
-                pitches = {}
-               calculateDimensions(song, instruments)
+                return playSong(songs[songI])
             elseif key == volumeUp then
                 volumeMod = volumeMod*1.01
             elseif key == volumeDown then
@@ -226,13 +219,13 @@ while true do
     end
 
 
-    SecSinceTick = SecSinceTick + elapsedTime
+    secSinceTick = secSinceTick + elapsedTime
 
-    if ticks == 0 then SecSinceTick = 0.05 end
+    if ticks == 0 then secSinceTick = 0.05 end
 
-    while SecSinceTick >= Spt-0.1  do
+    while secSinceTick >= spt-0.1  do
 
-   SecSinceTick = SecSinceTick-Spt
+   secSinceTick = secSinceTick-spt
 
    if not paused then
 
@@ -275,16 +268,12 @@ while true do
     table.insert(pitches, AVpitch or 0)
 
     if note == nil then
-        songI = songI + 1
-        if songI > #songs then songI = 1 end
-                song, instruments = parseSong(songs[songI])
-                ticks = 0
-                k, note = nil, nil
-                volumes = {}
-                pitches = {}
-                calculateDimensions(song, instruments)
+      songI = songI + 1
+      if songI > #songs then songI = 1 end
+      return playSong(songs[songI])
     end
 
     drawScreen(volumes, pitches, song, ticks)
-end end end
+end end end end
 
+playSong(songs[1])
