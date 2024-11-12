@@ -164,6 +164,30 @@ function table.size(tbl)
     return x
 end
 
+local function handleInput(paused)
+   local songIChanged = false
+
+   for _, key in pairs(getKeys()) do
+      if key == pause then
+            paused = not paused
+      elseif key == nextK then
+            songI = songI + 1
+            if songI > #songs then songI = 1 end
+            songIChanged = true
+      elseif key == previous then
+            songI = songI - 1
+            if songI < 1 then songI = #songs end
+            songIChanged = true
+      elseif key == volumeUp then
+            volumeMod = volumeMod*1.01
+      elseif key == volumeDown then
+            volumeMod = volumeMod/1.01
+      end
+   end
+
+   return paused, songIChanged
+end
+
 local function playSong(songFile)
    local song, instruments = parseSong(songs[songI])
 
@@ -198,23 +222,12 @@ while true do
    local elapsedTime = 0
 
     while elapsedTime <= 0 do
-        for _, key in pairs(getKeys()) do
-            if key == pause then
-                paused = not paused
-            elseif key == nextK then
-                songI = songI + 1
-                if songI > #songs then songI = 1 end
-                return playSong(songs[songI])
-            elseif key == previous then
-                songI = songI - 1
-                if songI < 1 then songI = #songs end
-                return playSong(songs[songI])
-            elseif key == volumeUp then
-                volumeMod = volumeMod*1.01
-            elseif key == volumeDown then
-                volumeMod = volumeMod/1.01
-            end
-        end
+      local changeSong = false
+
+       paused, changeSong = handleInput(paused)
+
+      if changeSong then return playSong(songs[songI]) end
+
         elapsedTime = os.clock() - start
     end
 
