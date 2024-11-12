@@ -153,7 +153,10 @@ end
 while true do
     local start = os.clock()
     os.startTimer(0)
-    while os.clock() - start <= 0 do
+
+   local elapsedTime = 0
+
+    while elapsedTime <= 0 do
         for _, key in pairs(getKeys()) do
             if key == pause then
                 paused = not paused
@@ -181,11 +184,12 @@ while true do
                 volumeMod = volumeMod/1.01
             end
         end
+        elapsedTime = os.clock() - start
     end
 
 
-    SecSinceTick = SecSinceTick + (os.clock() - start)
-    
+    SecSinceTick = SecSinceTick + elapsedTime
+
     if ticks == 0 then SecSinceTick = 0.05 end
 
     while SecSinceTick >= Spt-0.1  do
