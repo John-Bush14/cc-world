@@ -42,14 +42,14 @@ local function map(tbl, fn)
     return result
 end
 
-local function drawScreen(volumes, pitches, song, ticks)
+local function drawScreen(graphData, graphDataLength, song, ticks)
     term.clear()
 
     term.setCursorPos(paddingX-1, PaddingY)
     term.setTextColor(color)
     term.setBackgroundColor(color)
-    for pitchk = math.max(#pitches-MaxX, 1),#pitches,1 do
-         local pitch = pitches[pitchk]
+    for pitchk = math.max(graphDataLength-MaxX, 1), graphDataLength,1 do
+         local pitch = graphData[pitchk][1]
 
         local x,_ = term.getCursorPos()
 
@@ -60,8 +60,8 @@ local function drawScreen(volumes, pitches, song, ticks)
    term.setCursorPos(paddingX-1, PaddingYV)
     term.setTextColor(colors.green)
     term.setBackgroundColor(colors.green)
-    for volk = math.max(#volumes-MaxX, 1), #volumes, 1 do
-         local volume = volumes[volk]
+    for volk = math.max(graphDataLength-MaxX, 1), graphDataLength,1 do
+         local volume = graphData[volk][2]
 
         local x,_ = term.getCursorPos()
 
@@ -241,9 +241,9 @@ local function playSong(songFile)
    local k, note = nil, nil
 
 
-   local volumes = {}
+   local graphData = {}
 
-   local pitches = {}
+   local graphDataLength = 0
 
 
    while true do
@@ -293,10 +293,10 @@ local function playSong(songFile)
          end
 
 
-         --if layerI ~= 0 then k, note = next(song.notes, k) end
+         graphDataLength = graphDataLength+1
 
-         table.insert(volumes, AVvolume or 0)
-         table.insert(pitches, AVpitch or 0)
+         graphData[graphDataLength] = {AVpitch or 0, AVvolume or 0}
+
 
          if note == nil then
             songI = songI + 1
@@ -304,7 +304,7 @@ local function playSong(songFile)
             return playSong(songs[songI])
          end
 
-         drawScreen(volumes, pitches, song, ticks)
+         drawScreen(graphData, graphDataLength, song, ticks)
          print(k, note)
          end
       end
