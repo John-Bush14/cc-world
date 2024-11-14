@@ -14,7 +14,8 @@ local instrumentsVanilla = {
    "flute", -- didgeridoo
    "harp", -- bit,
    "harp", -- banjo
-   "harp" -- pling
+   "harp", -- pling
+   "Tempo Changer"
 }
 
 local speakers = {peripheral.find("speaker")}
@@ -188,7 +189,7 @@ local function handleInput(paused)
    return paused, songIChanged
 end
 
-local function playTick(k, note, song, instruments)
+local function playTick(k, note, song, instruments, tempoChangers)
    local AVpitch = nil
    local AVvolume = nil
 
@@ -208,9 +209,13 @@ local function playTick(k, note, song, instruments)
 
       local i = 1
 
----@diagnostic disable-next-line: need-check-nil
-      while not speakers[i].playNote(instrument, volume*10, pitch) and i < #speakers do
-         i = i + 1
+      if instrument == "Tempo Changer" then
+         tempoChangers[note.key] = math.abs(note.pitch/15.0)
+      else
+         ---@diagnostic disable-next-line: need-check-nil
+         while not speakers[i].playNote(instrument, volume*10, pitch) and i < #speakers do
+            i = i + 1
+         end
       end
 
       k, note = next(song.notes, k)
@@ -246,6 +251,9 @@ local function playSong(songFile)
    local graphDataLength = 0
 
 
+   local tempoChangers = {}
+
+
    while true do
       local start = os.clock()
 
@@ -279,6 +287,10 @@ local function playSong(songFile)
 
          if type(note) ~= nil then ticks = ticks + 1 end
 
+
+         if tempoChangers[ticks] ~= nil then spt = 1/tempoChangers[ticks] end
+
+
          k, note = next(song.notes, k)
 
 
@@ -289,7 +301,7 @@ local function playSong(songFile)
          if type(note) == "table" then
             ticks = ticks-1
 
-            AVpitch, AVvolume, k, note = playTick(k, note, song, instruments)
+            AVpitch, AVvolume, k, note = playTick(k, note, song, instruments, tempoChangers)
          end
 
 
