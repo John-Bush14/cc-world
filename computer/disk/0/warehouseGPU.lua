@@ -100,7 +100,7 @@ while true do -- Main loop
     screen.moveCursor((-bar.length-#barTxt.txtF)/2, -bar.size/2)
     screen.setBackgroundColor(barTxt.bgColor)
     screen.setTextColor(barTxt.color)
-    screen.printm(barTxt.txtF)
+    screen.write(barTxt.txtF)
     -- move Y back for padding
     screen.moveCursor(0, bar.size/2)
 
@@ -139,10 +139,10 @@ while true do -- Main loop
             screen.setBackgroundColor(bgColor)
             screen.setCursorPosX(localBase[1]+itmGrid.size.x/2-#favoriteName/2)
 
-            screen.printm(favoriteName)
+            screen.write(favoriteName)
             screen.moveCursor(0, 1)
             screen.setCursorPosX(localBase[1]+itmGrid.size.x/2-#(tostring(favoriteCount))/2)
-            screen.printm(tostring(favoriteCount))
+            screen.write(tostring(favoriteCount))
         end
     end
 

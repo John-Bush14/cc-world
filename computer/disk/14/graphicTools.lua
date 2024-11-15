@@ -22,10 +22,6 @@ function M.extend_screen(screen)
         screen.setCursorPos(ox+x, oy+y)
     end
 
-    function screen.printm(text)
-        screen.write(text)
-    end
-
     function screen.printBig(text, size)
         local x, y = screen.getCursorPos()
         bigfont.writeOn(screen, size or 1, text, x, y)
