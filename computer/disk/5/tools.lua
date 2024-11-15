@@ -72,4 +72,15 @@ function tools.tblAdd(tbl1, tbl2)
     end
 end
 
+function tools.tblCopy(original)
+	local copy = {}
+	for k, v in pairs(original) do
+		if type(v) == "table" then
+			v = table.copy(v)
+		end
+		copy[k] = v
+	end
+	return copy
+end
+
 return tools

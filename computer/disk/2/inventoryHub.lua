@@ -124,6 +124,15 @@ while true do
 
             gcna.transmit("WWN", ports.itemRemote, 0)
 
+            local virtualInventory = tools.tblCopy(inventory)
+
+            for _, source in pairs(message.sources) do
+               virtualInventory[source.item].count = virtualInventory[source.item].count - source.count
+
+               virtualInventory.usedSize = virtualInventory.usedSize - source.count
+            end
+
+            gcna.transmit("LAN", ports.warehouseGPU, virtualInventory)
         end,
 
         receive = function()
@@ -136,6 +145,16 @@ while true do
 
             gcna.transmit("LAN", ports.inputManager, {})
             print("done!")
+
+            local virtualInventory = tools.tblCopy(inventory)
+
+            for _, source in pairs(message.sources) do
+               virtualInventory[source.item].count = virtualInventory[source.item].count + source.count
+
+               virtualInventory.usedSize = virtualInventory.usedSize - source.count
+            end
+
+            gcna.transmit("LAN", ports.warehouseGPU, virtualInventory)
         end,
 
         favorite = function()

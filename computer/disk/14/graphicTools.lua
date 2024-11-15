@@ -28,6 +28,8 @@ function M.extend_screen(screen)
    end
 
    function screen.drawPixel(color)
+      color = string.lower(string.format("%X", math.log(color, 2)))
+
       screen.blit("o", color, color)
    end
 
@@ -68,16 +70,18 @@ function M.extend_screen(screen)
       end
    end
 
-   function screen.drawRect(width, height)
+   function screen.drawRect(width, height, color)
+      color = color or colors.black
+
       local basex, basey = screen.getCursorPos()
 
-      screen.drawLineV(height)
-      screen.drawLineH(width)
+      screen.drawLineV(height, color)
+      screen.drawLineH(width, color)
       screen.moveCursor(-1, -height)
-      screen.drawLineV(height)
+      screen.drawLineV(height, color)
 
       screen.setCursorPos(basex, basey)
-      screen.drawLineH(width)
+      screen.drawLineH(width, color)
    end
 end
 
