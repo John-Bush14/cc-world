@@ -43,35 +43,17 @@ local function map(tbl, fn)
     return result
 end
 
-local function drawScreen(graphData, graphDataLength, song, ticks)
+local function drawScreen(blitlines, song, ticks)
     term.clear()
 
-    term.setCursorPos(paddingX-1, PaddingY)
-    term.setTextColor(color)
-    term.setBackgroundColor(color)
-    for pitchk = math.max(graphDataLength-MaxX, 1), graphDataLength,1 do
-         local pitch = graphData[pitchk][1]
 
-        local x,_ = term.getCursorPos()
-
-        term.setCursorPos(x+1, PaddingY-(pitch*Width))
-        if pitch > 0 then term.write("0") end
-   end
-
-   term.setCursorPos(paddingX-1, PaddingYV)
-    term.setTextColor(colors.green)
-    term.setBackgroundColor(colors.green)
-    for volk = math.max(graphDataLength-MaxX, 1), graphDataLength,1 do
-         local volume = graphData[volk][2]
-
-        local x,_ = term.getCursorPos()
-
-        term.setCursorPos(x+1, PaddingYV-(volume*WidthV))
-        if volume > 0 then term.write("0") end
+    for y, blitline in pairs(blitlines) do
+       term.setCursorPos(-2, y)
+       term.blit(blitline, blitline, blitline)
     end
-        term.setTextColor(colors.white)
-    term.setBackgroundColor(colors.black)
-    term.setCursorPos(1, 1)
+   
+      
+   term.setCursorPos(1, 1)
 
     if song.header.name == "" then song.header.name = song.header["OG-filename"] end
     if song.header.author == "" then song.header.author = song.header["OG-author"] end
@@ -80,7 +62,7 @@ local function drawScreen(graphData, graphDataLength, song, ticks)
  end
 
 local function calculateDimensions(song)
-   MaxX = math.floor(term.getSize()/2+11)
+   MaxX = math.floor(term.getSize()-6)
 
    local layerI = 0
 
@@ -246,9 +228,19 @@ local function playSong(songFile)
    local k, note = nil, nil
 
 
-   local graphData = {}
+   local blitlines = {}
 
-   local graphDataLength = 0
+   local emptyBlitline = ""
+
+   for _ = 1-2,MaxX,1 do
+      emptyBlitline = emptyBlitline .. "f"
+   end
+
+   local _, height = term.getSize()
+
+   for _=1,height,1 do
+      table.insert(blitlines, emptyBlitline)
+   end
 
 
    local tempoChangers = {}
@@ -305,9 +297,15 @@ local function playSong(songFile)
          end
 
 
-         graphDataLength = graphDataLength+1
+         local pitchY = math.floor((PaddingY-((AVpitch or 0)*Width)))
+         local volumeY = math.floor((PaddingYV-((AVvolume or 0)*WidthV)))
 
-         graphData[graphDataLength] = {AVpitch or 0, AVvolume or 0}
+
+         for y, blitline in pairs(blitlines) do
+            if y == pitchY and AVpitch or 0 > 0 then blitlines[y] = blitline .. "fb"
+            elseif y == volumeY and AVvolume or 0 > 0 then blitlines[y] = blitline .. "fd"
+            else blitlines[y] = blitline .. "ff" end
+         end
 
 
          if note == nil then
@@ -316,7 +314,12 @@ local function playSong(songFile)
             return playSong(songs[songI])
          end
 
-         drawScreen(graphData, graphDataLength, song, ticks)
+         drawScreen(blitlines, song, ticks)
+
+
+         for y, blitline in pairs(blitlines) do
+            blitlines[y] = string.sub(blitline, 3)
+         end
          end
       end
    end
