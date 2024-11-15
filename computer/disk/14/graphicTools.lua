@@ -32,13 +32,7 @@ function M.extend_screen(screen)
     end
 
     function screen.drawPixel(color)
-        local oldBg = screen.getBackgroundColor()
-        local oldTxt = screen.getTextColor()
-        screen.setBackgroundColor(color or screen.getTextColor())
-        screen.setTextColor(color or screen.getTextColor())
-        screen.printm("o")
-        screen.setBackgroundColor(oldBg)
-        screen.setTextColor(oldTxt)
+        screen.blit("o", color, color)
     end
 
    function screen.drawLineV(len, color, width)
