@@ -79,16 +79,12 @@ function gcna.receive(timeout, modems)
             end
         end
 
-        for k, message in pairs(gcna.messages) do
-            if modems[message.modem] ~= nil then
-                for _, port in pairs(modems[message.modem]) do
-                    if port == message.port then
-                        gcna.messages[k] = nil
-                        return message.message, message.port, modems[message.modem].id
-                    end
-                end
-            end
-        end
+        for k, message in pairs(gcna.messages) do if modems[message.modem] ~= nil then
+            for _, port in pairs(modems[message.modem]) do if port == message.port then
+               gcna.messages[k] = nil
+               return message.message, message.port, modems[message.modem].id
+            end end
+        end end
     end
 
     print("timeout!")
