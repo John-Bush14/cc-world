@@ -317,7 +317,6 @@ local function playSong(songFile)
          end
 
          drawScreen(graphData, graphDataLength, song, ticks)
-         print(k, note)
          end
       end
    end
