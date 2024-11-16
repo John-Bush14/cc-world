@@ -65,7 +65,8 @@ for _=1,4 do
     table.insert(clusterChests, inventoryChests)
 end
 
-local inventory = {usedSize = 0, size = 0}
+local inventory = {usedSize = 0, size = 0, favorites = favorites}
+local virtualInventory = tools.tblCopy(inventory)
 
 local function change(changes)
     if sizes[changes.sender] == nil then
@@ -89,6 +90,8 @@ local function change(changes)
        end
        inventory.usedSize = inventory.usedSize + item.count
     end
+
+    virtualInventory = tools.tblCopy(inventory)
 end
 
 while true do
@@ -99,8 +102,8 @@ while true do
             gcna.transmit("LAN", ports.inventory, {chests=clusterChests[inventories], id = message.id})
             inventories = inventories + 1
         else
-            change(message)
             inventory.favorites = favorites
+            change(message)
             gcna.transmit("LAN", ports.warehouseGPU, inventory)
         end
     else local requestMatch = {
@@ -110,7 +113,7 @@ while true do
         end,
 
         send = function()
-            for _, source in pairs(inventory[message.item].sources) do
+            for k, source in pairs(virtualInventory[message.item].sources) do
                 if tonumber(source.count) > 0 and tonumber(message.count) > 0 then
                     print("check")
                     source.count = math.min(math.max(source.count, 0), math.max(message.count, 0))
@@ -119,24 +122,37 @@ while true do
                     playerInventory.pullItems(source.chestName, source.slot, source.count)
                     message.count = message.count - source.count
                      print(source.count, message.count, "2")
+
+                     virtualInventory[message.item].count = virtualInventory[message.item].count - source.count
+
+                     virtualInventory.usedSize = virtualInventory.usedSize - source.count
+
+                     virtualInventory[message.item].sources[k].count = inventory[message.item].sources[k].count - source.count
                 end
             end
 
             gcna.transmit("WWN", ports.itemRemote, 0)
-
-            local virtualInventory = tools.tblCopy(inventory)
-
-            for _, source in pairs(message.sources) do
-               virtualInventory[source.item].count = virtualInventory[source.item].count - source.count
-
-               virtualInventory.usedSize = virtualInventory.usedSize - source.count
-            end
 
             gcna.transmit("LAN", ports.warehouseGPU, virtualInventory)
         end,
 
         receive = function()
             print("receiving")
+
+            for _, source in pairs(message.sources) do
+               if virtualInventory[source.name] == nil then
+                  ---@diagnostic disable-next-line: undefined-field
+                  virtualInventory[source.name] = peripheral.wrap(source.chestName).getItemMeta(source.slot) or {}
+
+                  virtualInventory[source.name].count = 0
+                  virtualInventory[source.name].sources = {}
+                  virtualInventory[source.name].name = source.name
+               end
+
+               virtualInventory[source.name].count = virtualInventory[source.name].count + source.count
+
+               virtualInventory.usedSize = virtualInventory.usedSize + source.count
+            end
 
             for k, cluster in pairs(clusters) do if tools.tblLen(message.sources) > 0 then
                 gcna.transmit("LAN", ports.itemManager, {sources = message.sources, cluster=cluster, request="receive", chests=clusterChests[k]})
@@ -145,14 +161,6 @@ while true do
 
             gcna.transmit("LAN", ports.inputManager, {})
             print("done!")
-
-            local virtualInventory = tools.tblCopy(inventory)
-
-            for _, source in pairs(message.sources) do
-               virtualInventory[source.item].count = virtualInventory[source.item].count + source.count
-
-               virtualInventory.usedSize = virtualInventory.usedSize - source.count
-            end
 
             gcna.transmit("LAN", ports.warehouseGPU, virtualInventory)
         end,
