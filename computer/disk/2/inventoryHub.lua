@@ -113,13 +113,16 @@ while true do
         end,
 
         send = function()
+           print("sending!")
+
             for k, source in pairs(virtualInventory[message.item].sources) do
                 if tonumber(source.count) > 0 and tonumber(message.count) > 0 then
                     print("check")
                     source.count = math.min(math.max(source.count, 0), math.max(message.count, 0))
                     print(source.count, message.count)
 
-                    playerInventory.pullItems(source.chestName, source.slot, source.count)
+                    if port == ports.itemRemote then playerInventory.pullItems(source.chestName, source.slot, source.count)
+                     else peripheral.wrap(source.chestName).pushItems(message.dest, source.slot, source.count) end
                     message.count = message.count - source.count
                      print(source.count, message.count, "2")
 
@@ -131,7 +134,8 @@ while true do
                 end
             end
 
-            gcna.transmit("WWN", ports.itemRemote, 0)
+            if port == ports.itemRemote then gcna.transmit("WWN", port, 0)
+            else gcna.transmit("LAN", ports.item, 0) end
 
             gcna.transmit("LAN", ports.warehouseGPU, virtualInventory)
         end,
