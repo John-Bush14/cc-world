@@ -16,12 +16,14 @@ function tools.getInventory(chests, inventoryPeripheral)
                 if inventory[name] == nil then
                   ---@diagnostic disable-next-line: undefined-field -- getItemMeta renamed in newer version
                     inventory[name] = chest.getItemMeta(slot)
-                    inventory[name].sources = {}
+                    if inventory[name] ~= nil then inventory[name].sources = {} end
                 else
                     inventory[name].count = item.count + inventory[name].count
                 end
 
-                table.insert(inventory[name].sources, {name=name,slot=slot,count=item.count,chestName = chestName,clusterName = selfName})
+                if inventory[name] ~= nil then
+                  table.insert(inventory[name].sources, {name=name,slot=slot,count=item.count,chestName = chestName,clusterName = selfName})
+               end
             end
         end
     end
