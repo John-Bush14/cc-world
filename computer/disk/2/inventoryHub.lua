@@ -112,17 +112,26 @@ while true do
             gcna.transmit("WWN", ports.itemRemote, inventory)
         end,
 
-        send = function()
+        send = function()         
            print("sending!")
 
-            for k, source in pairs(virtualInventory[message.item].sources) do
+            if virtualInventory[message.item] ~= nil then for k, source in pairs(virtualInventory[message.item].sources) do
                 if tonumber(source.count) > 0 and tonumber(message.count) > 0 then
                     print("check")
                     source.count = math.min(math.max(source.count, 0), math.max(message.count, 0))
                     print(source.count, message.count)
 
                     if port == ports.itemRemote then playerInventory.pullItems(source.chestName, source.slot, source.count)
-                     else peripheral.wrap(source.chestName).pushItems(message.dest, source.slot, source.count) end
+                     else
+                        if message.unconnected == nil then
+                           peripheral.wrap(source.chestName).pushItems(message.dest, source.slot, source.count)
+                        else
+                           gcna.transmit("LAN", ports.item, {
+                              id = message.unconnected,
+                              source = source
+                           })
+                        end
+                     end
                     message.count = message.count - source.count
                      print(source.count, message.count, "2")
 
@@ -132,10 +141,10 @@ while true do
 
                      virtualInventory[message.item].sources[k].count = inventory[message.item].sources[k].count - source.count
                 end
-            end
+            end end
 
             if port == ports.itemRemote then gcna.transmit("WWN", port, 0)
-            else gcna.transmit("LAN", ports.item, 0) end
+            else gcna.transmit("LAN", ports.item, {id = message.unconnected, finished = true}) end
 
             gcna.transmit("LAN", ports.warehouseGPU, virtualInventory)
         end,

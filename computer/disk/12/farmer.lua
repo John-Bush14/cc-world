@@ -12,7 +12,7 @@ local seedSlot = 2
 
 
 gcna.init({
-   LAN = {"bottom", ports.itemResult}
+   LAN = {"bottom", ports.item}
 })
 
 
@@ -28,6 +28,33 @@ local jobs = {
 }
 
 
+local function getItem(item, count, slot)
+   gcna.transmit("LAN", ports.item, {
+      request = "send",
+      item = item,
+      count = count,
+      dest = localName,
+      unconnected = localName
+   })
+
+   local result = {}
+
+   while not result.finished do
+      while result.id ~= localName do
+         result = gcna.receive({LAN = {ports.item}})
+      end
+
+      local source = result.source
+
+      count = count - source.count
+
+      peripheral.wrap(localName).pullItems(source.chestName, source.slot, source.count, slot)
+   end
+
+   return count
+end
+
+
 local place = 21-tonumber(string.sub(peripheral.wrap("bottom").getNameLocal() or "turtle_14", 8, 9)) + 1
 
 local job = jobs[place]
@@ -37,31 +64,17 @@ while true do
    print("tick!")
 
    if block.name == "computercraft:wired_modem_full" then
-      while turtle.getItemCount(fuelSlot) < 64 do
-         gcna.transmit("LAN", ports.item, {
-            request = "send",
-            item = fuel,
-            count = 64-turtle.getItemCount(fuelSlot),
-            dest = localName
-         })
-
+      while getItem(fuel, turtle.getItemSpace(fuelSlot), fuelSlot) > 0 do
          sleep(0.5)
       end
 
-      turtle.select(1)
+      turtle.select(fuelSlot)
       turtle.refuel(64)
 
       if job[1] ~= "nothing" then
          print("getting seeds!")
 
-         while turtle.getItemCount(seedSlot) < 64 do
-            gcna.transmit("LAN", ports.item, {
-               request = "send",
-               item = "minecraft:" .. job[1],
-               count = 64-turtle.getItemCount(seedSlot),
-               dest = localName
-            })
-
+         while getItem("minecraft:" .. job[1], turtle.getItemSpace(seedSlot), seedSlot) > 0 do
             sleep(0.5)
          end
       end
