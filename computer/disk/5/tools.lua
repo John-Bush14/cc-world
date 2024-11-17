@@ -78,7 +78,7 @@ function tools.tblCopy(original)
 	local copy = {}
 	for k, v in pairs(original) do
 		if type(v) == "table" then
-			v = table.copy(v)
+			v = tools.tblCopy(v)
 		end
 		copy[k] = v
 	end
