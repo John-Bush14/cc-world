@@ -47,6 +47,12 @@
     },
     "done": true
   },
+  "minecraft:recipes/misc/magenta_dye_from_lapis_ink_bonemeal": {
+    "criteria": {
+      "has_bonemeal": "2024-11-20 15:10:06 +0100"
+    },
+    "done": true
+  },
   "computercraft:recipes/generated/turtle_advanced/computercraft_advanced_modem": {
     "criteria": {
       "has_items": "2024-05-13 17:09:40 +0200"
@@ -80,6 +86,18 @@
   "minecraft:recipes/building_blocks/snow": {
     "criteria": {
       "has_snowball": "2024-05-29 15:06:01 +0200"
+    },
+    "done": true
+  },
+  "computercraft:recipes/generated/turtle_normal/minecraft_diamond_hoe": {
+    "criteria": {
+      "has_items": "2024-11-20 15:10:06 +0100"
+    },
+    "done": true
+  },
+  "minecraft:recipes/misc/light_blue_dye_from_lapis_bonemeal": {
+    "criteria": {
+      "has_bonemeal": "2024-11-20 15:10:06 +0100"
     },
     "done": true
   },
@@ -158,6 +176,12 @@
   "minecraft:recipes/redstone/trapdoor": {
     "criteria": {
       "has_planks": "2024-06-01 16:03:23 +0200"
+    },
+    "done": true
+  },
+  "minecraft:recipes/misc/light_gray_dye_from_gray_bonemeal": {
+    "criteria": {
+      "has_bonemeal": "2024-11-20 15:10:06 +0100"
     },
     "done": true
   },
@@ -335,6 +359,12 @@
     },
     "done": true
   },
+  "minecraft:recipes/misc/pink_dye_from_red_bonemeal": {
+    "criteria": {
+      "has_bonemeal": "2024-11-20 15:10:06 +0100"
+    },
+    "done": true
+  },
   "computercraft:recipes/generated/pocket_advanced/computercraft_speaker": {
     "criteria": {
       "has_items": "2024-05-19 17:58:19 +0200"
@@ -449,6 +479,12 @@
     },
     "done": true
   },
+  "minecraft:recipes/misc/lime_dye": {
+    "criteria": {
+      "has_bonemeal": "2024-11-20 15:10:06 +0100"
+    },
+    "done": true
+  },
   "minecraft:story/form_obsidian": {
     "criteria": {
       "obsidian": "2024-05-16 17:28:11 +0200"
@@ -554,6 +590,12 @@
   "minecraft:recipes/brewing/cauldron": {
     "criteria": {
       "has_water_bucket": "2024-06-01 16:12:53 +0200"
+    },
+    "done": true
+  },
+  "minecraft:recipes/misc/gray_dye": {
+    "criteria": {
+      "has_bonemeal": "2024-11-20 15:10:06 +0100"
     },
     "done": true
   },
@@ -670,6 +712,12 @@
   "minecraft:recipes/decorations/enchanting_table": {
     "criteria": {
       "has_obsidian": "2024-05-16 17:28:11 +0200"
+    },
+    "done": true
+  },
+  "minecraft:recipes/misc/light_gray_dye_from_ink_bonemeal": {
+    "criteria": {
+      "has_bonemeal": "2024-11-20 15:10:06 +0100"
     },
     "done": true
   },
@@ -964,6 +1012,12 @@
     },
     "done": true
   },
+  "minecraft:recipes/misc/bone_meal_from_block": {
+    "criteria": {
+      "has_the_recipe": "2024-11-20 15:10:06 +0100"
+    },
+    "done": true
+  },
   "minecraft:story/mine_diamond": {
     "criteria": {
       "diamond": "2024-05-18 19:16:07 +0200"
@@ -1039,6 +1093,12 @@
   "minecraft:recipes/decorations/blue_stained_glass_pane": {
     "criteria": {
       "has_glass": "2024-05-16 17:27:23 +0200"
+    },
+    "done": true
+  },
+  "minecraft:recipes/building_blocks/bone_block": {
+    "criteria": {
+      "has_at_least_9_bonemeal": "2024-11-20 15:10:06 +0100"
     },
     "done": true
   }
