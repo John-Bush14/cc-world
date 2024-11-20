@@ -41,10 +41,12 @@ local function getItem(item, count, slot)
 
    while not result.finished do
       while result.id ~= localName do
-         result = gcna.receive({LAN = {ports.item}})
+         result = gcna.receive(0, {LAN = {ports.item}})
       end
 
-      local source = result.source
+      if result.finished then break end
+
+      local source = result.source or error(textutils.serialise(result))
 
       count = count - source.count
 
